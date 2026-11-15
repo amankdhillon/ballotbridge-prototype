@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #f6efe6; --surface: #fffdf9; --ink: #3b2a20; --muted: #7a6558;
+    --line: #e6d9cc; --accent: #b5533c; --ok: #3f7a4e; --err: #a33b3b;
+    --radius: 10px;
+  }
+  [hidden] { display: none !important; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+  header.top { background: var(--surface); border-bottom: 1px solid var(--line); padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  header.top strong { font-family: Georgia, serif; }
+  .navlinks { margin-left: auto; display: flex; gap: 14px; }
+  .banner { margin: 0; padding: 8px 16px; background: #f3e3d3; color: var(--muted); font-size: 14px; }
+  main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+  h1, h2 { font-family: Georgia, serif; margin: 0 0 8px; line-height: 1.2; }
+  h1 { font-size: 1.6rem; } h2 { font-size: 1.1rem; }
+  p { margin: 0 0 10px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+  .narrow { max-width: 480px; margin: 24px auto; }
+  .stack > * + * { margin-top: 12px; }
+  .head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+  .head p { color: var(--muted); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .measure { text-align: left; display: flex; flex-direction: column; gap: 4px; cursor: pointer; font: inherit; color: inherit; }
+  .measure span, .measure small { color: var(--muted); font-size: 14px; }
+  .plain { list-style: none; padding: 0; margin: 0; }
+  .plain li { padding: 6px 0; }
+  .link { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font: inherit; text-align: left; }
+  .back { display: inline-block; margin-bottom: 12px; color: var(--accent); }
+  .btn { font: inherit; padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+  .btn.ghost { background: transparent; color: var(--accent); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .field { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+  .field small, .note { font-weight: 400; color: var(--muted); font-size: 14px; }
+  input, select, textarea { font: inherit; font-weight: 400; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; color: var(--ink); width: 100%; }
+  textarea { resize: vertical; }
+  .checkrow { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+  .chips, .seg { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip, .seg button, .icon {
+    font: inherit; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink); cursor: pointer;
+  }
+  .chip[aria-pressed="true"], .seg button[aria-pressed="true"], .icon[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .icon { font-size: 22px; padding: 4px 10px; }
+  .icons { display: flex; flex-wrap: wrap; gap: 8px; }
+  .post { padding: 10px 0; }
+  .meta { color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .tag, .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line); color: var(--muted); }
+  .badge.ok { color: var(--ok); border-color: var(--ok); }
+  .official { background: #fbf7f1; border-left: 4px solid var(--muted); padding: 12px; border-radius: var(--radius); white-space: pre-wrap; }
+  .empty { color: var(--muted); font-style: italic; }
+  .err { color: var(--err); min-height: 1.4em; margin: 0; }
+  .flash { background: #e4f1e7; color: var(--ok); padding: 8px 12px; border-radius: var(--radius); }
+  .stats { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
+  /* Threads */
+  .thread { border-top: 1px solid var(--line); padding-top: 4px; }
+  .thread:first-child { border-top: 0; }
+  .replies { border-left: 2px solid var(--line); margin-top: 6px; padding-left: 10px; }
+  .reply-box { background: #fbf7f1; padding: 10px; border-radius: var(--radius); margin: 8px 0; }
+  .reply-box .field { font-weight: 600; }
+  .modal { position: fixed; inset: 0; background: rgba(40, 25, 15, 0.45); display: flex; align-items: flex-start; justify-content: center; padding: 16px; overflow: auto; }
+  .modal .card { width: 100%; max-width: 560px; margin-top: 24px; }
+  .checkrow-list label { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
+  @media (max-width: 760px) {
+    .two, .layout { grid-template-columns: 1fr; }
+    .navlinks { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <strong>BallotBridge</strong><span class="tag">Prototype</span>
+  <nav class="navlinks" id="nav" aria-label="Main"></nav>
+</header>
+<p class="banner">Sample content and fictional accounts. Not official voter information.</p>
+<main id="app"></main>
+<div id="modal" class="modal" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// ---------- Configuration ----------
+// Paste your project values from Supabase: Project Settings > API.
+// The anon key is public by design; Row Level Security protects the data.
+// Never put the service_role key in this file.
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-PUBLIC-KEY';
+
+const ICONS = ['🦊', '🐼', '🐸', '🐙', '🦉', '🐝', '🌵', '🍀'];
+const STATES = ['California'];
+const DISTRICTS = ['Sample District A', 'Sample District B'];
+const CATEGORIES = [
+  'Funding / who pays', 'Taxes and fees', 'Housing', 'Schools', 'Transportation',
+  'Public safety', 'Health', 'Environment', 'Something else',
+];
+const READING_LEVELS = ['Grade 6', 'Grade 8', 'Grade 10'];
+const DEFAULT_LEVEL = 'Grade 8';
+const SOURCE_TYPES = ['Official', 'Nonpartisan analysis', 'News', 'Advocacy or campaign'];
+const REVIEW_CHECKS = [
+  { id: 'matches', label: 'Matches the official text' },
+  { id: 'neutral', label: 'Neutral wording' },
+  { id: 'sourced', label: 'Every claim has a source' },
+  { id: 'plain', label: 'Clear for a new voter' },
+];
+
+// ---------- State ----------
+let sb = null;             // Supabase client
+let ME = null;             // profile plus stats
+let REVIEWS_REQUIRED = 1;  // read from the database at startup
+let MEASURES = [];
+let QUEUE = [];
+let CURRENT = null;
+let CURRENT_ID = null;
+let FLASH = '';
+let scope = 'Statewide';
+let query = '';
+let channel = null;
+let safety = null;
+let refreshTimer = null;
+let lastJson = '';
+const drafts = {};
+const openReplies = new Set();
+
+// ---------- Utilities ----------
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const opts = (list, selected) => list.map(v => `<option${v === selected ? ' selected' : ''}>${esc(v)}</option>`).join('');
+const err = (msg, sel = '#err') => { const node = $(sel); if (node) node.textContent = msg; };
+const draftFor = id => drafts[id] || (drafts[id] = { text: '', anon: false });
+const openModal = html => { $('#modal').innerHTML = `<section class="card">${html}</section>`; $('#modal').hidden = false; };
+const closeModal = () => { $('#modal').hidden = true; $('#modal').innerHTML = ''; };
+const toggles = root => root.querySelectorAll('[data-toggle]').forEach(b => b.onclick = () =>
+  b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'));
+
+document.addEventListener('click', e => {
+  if (e.target.id === 'modal' || e.target.hasAttribute('data-close')) closeModal();
+});
+
+// Turns database errors into messages testers can act on.
+function friendlyError(e) {
+  const m = (e && e.message) || String(e);
+  const rules = [
+    ['row-level security', "Not allowed yet. Explanations need a verified account and a review of someone else's explanation first. Reviews can only go on explanations waiting for review."],
+    ['reviews_one_per_reviewer', 'You already reviewed this one.'],
+    ['reviews_approve_needs_checks', 'Complete every check before approving, or request changes instead.'],
+    ['reviews_changes_need_note', 'Say what needs to change in the note.'],
+    ['sources_url_https', 'Enter a full link starting with https://'],
+    ['posts_body_length', 'Write something first (1500 characters at most).'],
+    ['Anonymous sign-ins', 'Turn on anonymous sign-ins in Supabase: Authentication > Sign In / Providers.'],
+  ];
+  const hit = rules.find(([needle]) => m.includes(needle));
+  return hit ? hit[1] : m;
+}
+
+// Unwraps a Supabase { data, error } response, or throws a readable error.
+function ok(res) {
+  if (res.error) throw new Error(friendlyError(res.error));
+  return res.data;
+}
+
+function show(html) {
+  $('#app').innerHTML = html;
+  window.scrollTo(0, 0);
+  paintNav();
+}
+
+function paintNav() {
+  if (!ME || !ME.state) { $('#nav').innerHTML = ''; return; }
+  $('#nav').innerHTML = `<button class="link" data-nav="directory">Directory</button>`
+    + (ME.verified ? `<button class="link" data-nav="review">Review queue</button>` : '');
+  document.querySelectorAll('[data-nav]').forEach(b => b.onclick = () =>
+    b.dataset.nav === 'review' ? viewReviewQueue() : viewExplore());
+}
+
+// ---------- Mapping: database rows (snake_case) to page objects (camelCase) ----------
+const toMeasure = r => ({
+  id: r.id, shortTitle: r.short_title, title: r.title, scope: r.scope, district: r.district,
+  officialText: r.official_text, aiSummary: r.ai_summary, funders: r.funders || [],
+});
+const toPost = r => ({
+  id: r.id, type: r.type, parentId: r.parent_id || '', category: r.category,
+  readingLevel: r.reading_level, body: r.body, status: r.status, createdAt: r.created_at,
+  authorName: r.author_name, authorIcon: r.author_icon, authorVerified: r.author_verified,
+  isOwn: r.is_own, approvals: Number(r.approvals), changesCount: Number(r.changes_count),
+  reviewedByMe: r.reviewed_by_me, replies: [],
+});
+const toSource = r => ({ id: r.id, claim: r.claim, url: r.url, sourceType: r.source_type, status: r.status });
+const toQueue = r => ({
+  id: r.id, measureTitle: r.measure_title, officialText: r.official_text, body: r.body,
+  category: r.category, readingLevel: r.reading_level, approvals: Number(r.approvals),
+  changes: Number(r.changes_count), createdAt: r.created_at,
+});
+
+// ---------- Live updates ----------
+// Instead of polling, the page subscribes to a change log for the open measure.
+// Bursts of events are merged into one refresh, with jitter so 100 browsers don't fetch in lockstep.
+function watchMeasure(id) {
+  unwatch();
+  channel = sb.channel('measure-' + id)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'measure_events', filter: `measure_id=eq.${id}` },
+      () => scheduleRefresh())
+    .subscribe();
+  // Safety net in case an event is missed, for example after a dropped connection.
+  safety = setInterval(() => scheduleRefresh(), 60000);
+}
+
+function unwatch() {
+  if (channel) { sb.removeChannel(channel); channel = null; }
+  if (safety) { clearInterval(safety); safety = null; }
+}
+
+function scheduleRefresh(delay = 300) {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(() => refreshMeasure().catch(() => {}), delay + Math.random() * 500);
+}
+
+function stopPoll() {
+  unwatch();
+  clearTimeout(refreshTimer);
+  refreshTimer = null;
+}
+
+// ---------- Data access ----------
+async function authUser() {
+  const { data } = await sb.auth.getUser();
+  return data?.user ?? null;
+}
+
+async function loadMe() {
+  const user = await authUser();
+  if (!user) return null;
+  const profile = ok(await sb.from('profiles').select('*').eq('id', user.id).maybeSingle());
+  if (!profile) return null;
+  const [stats] = ok(await sb.rpc('my_stats'));
+  return {
+    id: profile.id,
+    nickname: profile.nickname,
+    icon: profile.icon,
+    state: profile.state,
+    district: profile.district,
+    topics: profile.topics || [],
+    verified: profile.is_verified,
+    explanationsWritten: Number(stats.explanations_written),
+    reviewsGiven: Number(stats.reviews_given),
+  };
+}
+
+async function fetchMeasures() {
+  return ok(await sb.from('measures').select('*').order('short_title')).map(toMeasure);
+}
+
+// One measure with its threads. Replies are nested under their parent here.
+async function fetchMeasure(id) {
+  const [m, p, s] = await Promise.all([
+    sb.from('measures').select('*').eq('id', id).maybeSingle(),
+    sb.from('post_view').select('*').eq('measure_id', id).order('created_at'),
+    sb.from('source_view').select('*').eq('measure_id', id).order('created_at'),
+  ]);
+  const measureRow = ok(m);
+  if (!measureRow) throw new Error('Measure not found.');
+  const posts = ok(p).map(toPost);
+  const byId = Object.fromEntries(posts.map(x => [x.id, x]));
+  const roots = [];
+  posts.forEach(x => {
+    if (!x.parentId) roots.push(x);
+    else if (byId[x.parentId]) byId[x.parentId].replies.push(x);
+  });
+  return {
+    measure: toMeasure(measureRow),
+    explanations: roots.filter(x => x.type === 'explanation'),
+    questions: roots.filter(x => x.type === 'question'),
+    sources: ok(s).map(toSource),
+  };
+}
+
+async function fetchQueue() {
+  return ok(await sb.from('review_queue').select('*').order('approvals').order('created_at')).map(toQueue);
+}
+
+async function createPost({ type, measureId, category = '', readingLevel = '', body, anonymous = false, parentId = null }) {
+  const text = (body || '').trim();
+  if (!text) throw new Error('Write something first.');
+  if (text.length > 1500) throw new Error('Keep it under 1500 characters.');
+  const user = await authUser();
+  ok(await sb.from('posts').insert({
+    author_id: user.id,
+    measure_id: measureId,
+    type: parentId ? 'reply' : type,
+    parent_id: parentId,
+    category,
+    reading_level: type === 'explanation' ? readingLevel : '',
+    body: text,
+    anonymous: !!anonymous,
+  }));
+}
+
+async function createSource({ measureId, claim, url, sourceType }) {
+  const link = (url || '').trim();
+  if (!/^https:\/\/\S+$/.test(link)) throw new Error('Enter a full link starting with https://');
+  if (!(claim || '').trim()) throw new Error('Say which claim this source supports.');
+  const user = await authUser();
+  ok(await sb.from('sources').insert({
+    measure_id: measureId,
+    claim: claim.trim(),
+    url: link,
+    source_type: sourceType,
+    submitted_by: user.id,
+  }));
+}
+
+async function addReview({ postId, verdict, checks, note }) {
+  const user = await authUser();
+  ok(await sb.from('reviews').insert({
+    post_id: postId,
+    reviewer_id: user.id,
+    verdict,
+    checks,
+    note: (note || '').trim(),
+  }));
+}
+
+// ---------- Welcome ----------
+
+function viewWelcome() {
+  stopPoll();
+  let icon = ICONS[0];
+  show(`
+    <section class="card narrow stack">
+      <h1>Welcome to BallotBridge!</h1>
+      <p>Learn your ballot measures together. Pick a nickname and an icon. No password is needed for this prototype.</p>
+      <label class="field">Nickname<input id="nick" maxlength="30" autocomplete="off"></label>
+      <div class="field"><span>Pick an icon</span>
+        <div class="icons" role="group" aria-label="Icon">
+          ${ICONS.map((ic, i) => `<button type="button" class="icon" data-icon="${esc(ic)}" aria-pressed="${i === 0}">${ic}</button>`).join('')}
+        </div>
+      </div>
+      <label class="field">Facilitator code <small>(contributors only, leave blank to visit)</small>
+        <input id="code" autocomplete="off"></label>
+      <div class="row"><button class="btn" id="join">Join</button></div>
+      <p class="err" id="err" role="alert"></p>
+    </section>`);
+  document.querySelectorAll('.icon').forEach(b => b.onclick = () => {
+    icon = b.dataset.icon;
+    document.querySelectorAll('.icon').forEach(x => x.setAttribute('aria-pressed', x === b));
+  });
+  $('#join').onclick = async () => {
+    const nickname = $('#nick').value.trim();
+    const code = $('#code').value.trim();
+    try {
+      if (!nickname) throw new Error('Pick a nickname.');
+      const user = await authUser();
+      ok(await sb.from('profiles').insert({ id: user.id, nickname: nickname.slice(0, 30), icon }));
+      if (code) ok(await sb.rpc('redeem_verify_code', { code }));
+      ME = await loadMe();
+      return ME.state ? viewExplore() : viewSetup();
+    } catch (e) { err(e.message); }
+  };
+}
+
+// ---------- Account setup ----------
+
+function viewSetup() {
+  stopPoll();
+  const picked = new Set(ME.topics || []);
+  show(`
+    <section class="card narrow stack">
+      <h1>Set up your account</h1>
+      <label class="field">State<select id="state">${opts(STATES, ME.state || STATES[0])}</select></label>
+      <label class="field">District<select id="district">${opts(DISTRICTS, ME.district || DISTRICTS[0])}</select></label>
+      <div class="field"><span>Topics of interest</span>
+        <div class="chips" role="group" aria-label="Topics">
+          ${CATEGORIES.map(t => `<button type="button" class="chip" data-toggle data-topic="${esc(t)}" aria-pressed="${picked.has(t)}">${esc(t)}</button>`).join('')}
+        </div>
+      </div>
+      <div class="row"><button class="btn" id="continue">Continue</button></div>
+      <p class="err" id="err" role="alert"></p>
+    </section>`);
+  toggles(document.querySelector('.chips'));
+  $('#continue').onclick = async () => {
+    try {
+      const topics = [...document.querySelectorAll('.chip[aria-pressed="true"]')].map(b => b.dataset.topic);
+      ok(await sb.from('profiles').update({
+        state: $('#state').value, district: $('#district').value, topics,
+      }).eq('id', ME.id));
+      ME = await loadMe();
+      viewExplore();
+    } catch (e) { err(e.message); }
+  };
+}
+
+// ---------- Directory ----------
+
+async function viewExplore() {
+  stopPoll();
+  MEASURES = await fetchMeasures();
+  show(`
+    <div class="head">
+      <div><h1>Ballot directory</h1><p>Propositions and measures you can read and discuss.</p></div>
+      <input id="search" type="search" placeholder="Search a proposition…" aria-label="Search propositions" style="max-width:260px" value="${esc(query)}">
+    </div>
+    <div class="seg" role="group" aria-label="Region">
+      ${['Statewide', 'Local'].map(s => `<button type="button" data-scope="${s}" aria-pressed="${scope === s}">${s}</button>`).join('')}
+    </div>
+    <div class="layout" style="margin-top:16px">
+      <aside class="card"><h2>Propositions</h2><ul class="plain" id="side"></ul></aside>
+      <section class="grid" id="grid"></section>
+    </div>`);
+  document.querySelectorAll('[data-scope]').forEach(b => b.onclick = () => {
+    scope = b.dataset.scope;
+    viewExplore();
+  });
+  $('#search').oninput = e => { query = e.target.value; paintList(); };
+  paintList();
+}
+
+function paintList() {
+  const q = query.trim().toLowerCase();
+  const list = MEASURES
+    .filter(m => m.scope === scope && (scope === 'Statewide' || m.district === ME.district))
+    .filter(m => !q || `${m.shortTitle} ${m.title}`.toLowerCase().includes(q));
+  $('#side').innerHTML = list.map(m =>
+    `<li><button class="link" data-open="${esc(m.id)}">${esc(m.shortTitle)}</button></li>`).join('')
+    || '<li class="empty">None</li>';
+  $('#grid').innerHTML = list.map(m =>
+    `<button class="card measure" data-open="${esc(m.id)}"><strong>${esc(m.shortTitle)}</strong>
+       <span>${esc(m.title)}</span><small>${m.scope === 'Local' ? esc(m.district) : 'Statewide'}</small></button>`).join('')
+    || '<p class="empty">No measures match.</p>';
+  document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => viewOverview(b.dataset.open));
+}
+
+// ---------- Proposition overview (threads) ----------
+
+async function viewOverview(id) {
+  stopPoll();
+  CURRENT_ID = id;
+  CURRENT = await fetchMeasure(id);
+  lastJson = JSON.stringify(CURRENT);
+  const m = CURRENT.measure;
+  show(`
+    <a href="#" class="back" id="back">← Propositions</a>
+    <div class="head">
+      <div><h1>${esc(m.shortTitle)}</h1><p>${esc(m.title)}</p></div>
+      <button class="btn" id="add">+ Add contribution</button>
+    </div>
+    <section class="card">
+      <h2>AI summary</h2>
+      <p>${esc(m.aiSummary)}</p>
+      <p class="note">Placeholder written by the facilitator (Wizard of Oz). Not generated by software.</p>
+    </section>
+    <section class="card">
+      <h2>Official ballot language</h2>
+      <p class="official">${esc(m.officialText)}</p>
+    </section>
+    <div class="two">
+      <section class="card"><h2>Community perspectives</h2><div id="community"></div></section>
+      <section class="card">
+        <h2>Citations</h2>
+        <div id="citations"></div>
+        <button class="btn ghost" id="addsrc">Add source</button>
+      </section>
+    </div>
+    <section class="card">
+      <h2>Questions</h2>
+      <div id="questions"></div>
+      <form id="qform" class="stack">
+        <h2 style="font-size:1rem">Start a new question</h2>
+        <label class="field">Topic<select id="qcat">${opts(CATEGORIES, CATEGORIES[0])}</select></label>
+        <label class="field">Question<textarea id="qbody" rows="2" required></textarea></label>
+        <label class="checkrow"><input type="checkbox" id="qanon"> Post anonymously</label>
+        <div class="row"><button class="btn" type="submit">Post question</button></div>
+        <p class="err" id="err" role="alert"></p>
+      </form>
+    </section>`);
+
+  paintMeasure();
+  $('#back').onclick = e => { e.preventDefault(); viewExplore(); };
+  $('#add').onclick = () => viewContribute(id);
+  $('#addsrc').onclick = openSourceModal;
+  $('#qform').onsubmit = async e => {
+    e.preventDefault();
+    try {
+      await createPost({
+        type: 'question', measureId: id, category: $('#qcat').value,
+        body: $('#qbody').value, anonymous: $('#qanon').checked,
+      });
+      $('#qbody').value = '';
+      $('#qanon').checked = false;
+      await refreshMeasure(true);
+    } catch (ex) { err(ex.message); }
+  };
+  watchMeasure(id);
+}
+
+// force = true repaints even if a reply box is focused (used right after the user acts).
+async function refreshMeasure(force = false) {
+  if (CURRENT_ID == null || !$('#community')) return;
+  const data = await fetchMeasure(CURRENT_ID);
+  const json = JSON.stringify(data);
+  if (!force && json === lastJson) return;
+  const typing = document.activeElement?.dataset?.draft;
+  if (typing && !force) { scheduleRefresh(2000); return; } // don't wipe a draft; try again shortly
+  CURRENT = data;
+  lastJson = json;
+  paintMeasure();
+}
+
+function paintMeasure() {
+  if (!$('#community')) return;
+  const { explanations, questions, sources } = CURRENT;
+  $('#community').innerHTML = explanations.length
+    ? explanations.map(p => threadHTML(p, 0)).join('')
+    : '<p class="empty">No explanations yet.</p>';
+  $('#questions').innerHTML = questions.length
+    ? questions.map(p => threadHTML(p, 0)).join('')
+    : '<p class="empty">No questions yet. Start the first one below.</p>';
+  $('#citations').innerHTML = sources.length
+    ? `<ul class="plain">${sources.map(sourceItem).join('')}</ul>`
+    : '<p class="empty">No sources yet.</p>';
+  bindThreads();
+}
+
+// Recursive: a post, its reply box if open, then its replies indented under it.
+function threadHTML(p, depth) {
+  const kids = (p.replies || []).map(r => threadHTML(r, depth + 1)).join('');
+  return `<div class="thread" style="margin-left:${Math.min(depth, 3) * 18}px">
+    ${postHTML(p)}
+    ${replyBox(p)}
+    ${kids ? `<div class="replies">${kids}</div>` : ''}
+  </div>`;
+}
+
+function postHTML(p) {
+  const isExplanation = p.type === 'explanation';
+  const canReview = isExplanation && p.status === 'pending' && !p.isOwn && !p.reviewedByMe && ME.verified;
+  let status = '';
+  if (isExplanation) {
+    status = p.status === 'reviewed'
+      ? `<span class="badge ok">Reviewed · ${p.approvals} approval${p.approvals === 1 ? '' : 's'}</span>`
+      : `<span class="badge">Pending review · ${p.approvals}/${REVIEWS_REQUIRED}</span>`;
+    if (p.changesCount) status += ` <span class="badge">Changes requested ×${p.changesCount}</span>`;
+  }
+  return `<article class="post">
+    <p class="meta">${esc(p.authorIcon)} ${esc(p.authorName)}
+      ${p.authorVerified ? '<span class="badge ok">Verified</span>' : ''}
+      ${p.category ? `<span class="tag">${esc(p.category)}</span>` : ''}
+      ${p.readingLevel ? `<span class="tag">${esc(p.readingLevel)}</span>` : ''}</p>
+    <p>${esc(p.body)}</p>
+    <div class="row">
+      ${status}
+      <button class="link" data-reply="${esc(p.id)}">Reply</button>
+      ${canReview ? `<button class="btn ghost" data-review-start="${esc(p.id)}">Review</button>` : ''}
+    </div>
+  </article>`;
+}
+
+function replyBox(p) {
+  if (!openReplies.has(p.id)) return '';
+  const d = draftFor(p.id);
+  return `<div class="reply-box">
+    <label class="field">Reply<textarea rows="2" data-draft="${esc(p.id)}">${esc(d.text)}</textarea></label>
+    <label class="checkrow"><input type="checkbox" data-anon="${esc(p.id)}" ${d.anon ? 'checked' : ''}> Reply anonymously</label>
+    <div class="row">
+      <button class="btn" data-send="${esc(p.id)}">Post reply</button>
+      <button class="link" data-reply="${esc(p.id)}">Cancel</button>
+    </div>
+    <p class="err" data-err="${esc(p.id)}"></p>
+  </div>`;
+}
+
+function bindThreads() {
+  document.querySelectorAll('[data-reply]').forEach(b => b.onclick = () => {
+    const id = b.dataset.reply;
+    openReplies.has(id) ? openReplies.delete(id) : openReplies.add(id);
+    paintMeasure();
+  });
+  document.querySelectorAll('[data-draft]').forEach(t => t.oninput = () => { draftFor(t.dataset.draft).text = t.value; });
+  document.querySelectorAll('[data-anon]').forEach(c => c.onchange = () => { draftFor(c.dataset.anon).anon = c.checked; });
+  document.querySelectorAll('[data-send]').forEach(b => b.onclick = () => sendReply(b.dataset.send));
+  document.querySelectorAll('[data-review-start]').forEach(b => b.onclick = () => startReview(b.dataset.reviewStart));
+}
+
+async function sendReply(parentId) {
+  const d = draftFor(parentId);
+  try {
+    await createPost({ type: 'reply', parentId, measureId: CURRENT_ID, body: d.text, anonymous: d.anon });
+    delete drafts[parentId];
+    openReplies.delete(parentId);
+    await refreshMeasure(true);
+  } catch (e) {
+    const node = document.querySelector(`[data-err="${parentId}"]`);
+    if (node) node.textContent = e.message;
+  }
+}
+
+function sourceItem(s) {
+  return `<li>
+    <a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.claim)}</a>
+    <div class="row"><span class="tag">${esc(s.sourceType)}</span><span class="badge">${esc(s.status)}</span></div>
+  </li>`;
+}
+
+// ---------- Add source modal ----------
+
+function openSourceModal() {
+  openModal(`
+    <h2>Add source</h2>
+    <label class="field">Claim this source supports<textarea id="sclaim" rows="2"></textarea></label>
+    <label class="field" style="margin-top:12px" for="surl">Link (must start with https)</label>
+    <input id="surl" type="url" placeholder="https://">
+    <label class="field" style="margin-top:12px" for="stype">Source type</label>
+    <select id="stype">${opts(SOURCE_TYPES, SOURCE_TYPES[0])}</select>
+    <label class="checkrow" style="margin-top:12px"><input type="checkbox" id="sconf"> This link opens without a login.</label>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="ssubmit">Add source</button>
+      <button class="btn ghost" data-close>Cancel</button>
+    </div>
+    <p class="err" id="merr" role="alert"></p>`);
+  $('#ssubmit').onclick = async () => {
+    if (!$('#sconf').checked) return err('Confirm that the link opens without a login.', '#merr');
+    try {
+      await createSource({
+        measureId: CURRENT_ID, claim: $('#sclaim').value, url: $('#surl').value, sourceType: $('#stype').value,
+      });
+      closeModal();
+      await refreshMeasure(true);
+    } catch (e) { err(e.message, '#merr'); }
+  };
+}
+
+// ---------- Reviewer: queue and review screen ----------
+
+async function viewReviewQueue() {
+  stopPoll();
+  try {
+    QUEUE = await fetchQueue();
+    ME = await loadMe();
+  } catch (e) {
+    show(`<section class="card narrow"><p class="err" role="alert">${esc(e.message)}</p>
+      <button class="btn ghost" id="back">Back to the directory</button></section>`);
+    $('#back').onclick = viewExplore;
+    return;
+  }
+  const flash = FLASH;
+  FLASH = '';
+  show(`
+    <h1>Review queue</h1>
+    <p class="note">Check each explanation against the official text. Authors are hidden. You can't review your own explanations or the same one twice.</p>
+    ${flash ? `<p class="flash" role="status">${esc(flash)}</p>` : ''}
+    <div class="stats">You have given ${ME.reviewsGiven} review${ME.reviewsGiven === 1 ? '' : 's'} and written ${ME.explanationsWritten} explanation${ME.explanationsWritten === 1 ? '' : 's'}.</div>
+    <section class="stack">
+      ${QUEUE.length ? QUEUE.map(queueCard).join('') : '<p class="empty">Nothing is waiting for review right now. Check back in a few minutes.</p>'}
+    </section>`);
+  document.querySelectorAll('[data-review-start]').forEach(b => b.onclick = () => viewReview(b.dataset.reviewStart));
+}
+
+function queueCard(q) {
+  return `<article class="card">
+    <p class="meta">${esc(q.measureTitle)} · ${esc(q.category)} · ${esc(q.readingLevel)}</p>
+    <p>${esc(q.body)}</p>
+    <div class="row">
+      <span class="badge">${q.approvals}/${REVIEWS_REQUIRED} approvals</span>
+      ${q.changes ? `<span class="badge">Changes requested ×${q.changes}</span>` : ''}
+      <button class="btn" data-review-start="${esc(q.id)}">Start review</button>
+    </div>
+  </article>`;
+}
+
+// Entered from the queue or from a Review button on the overview.
+async function startReview(postId) {
+  stopPoll();
+  QUEUE = await fetchQueue();
+  if (!QUEUE.some(x => x.id === postId)) {
+    FLASH = 'That explanation is no longer waiting for your review.';
+    return viewReviewQueue();
+  }
+  viewReview(postId);
+}
+
+function viewReview(postId) {
+  stopPoll();
+  const item = QUEUE.find(x => x.id === postId);
+  if (!item) return viewReviewQueue();
+  show(`
+    <a href="#" class="back" id="back">← Review queue</a>
+    <h1>Review: ${esc(item.measureTitle)}</h1>
+    <p class="note">${item.approvals} of ${REVIEWS_REQUIRED} approval${REVIEWS_REQUIRED === 1 ? '' : 's'} so far${item.changes ? `, ${item.changes} request${item.changes === 1 ? '' : 's'} for changes` : ''}.</p>
+    <div class="two">
+      <section class="card"><h2>Official ballot language</h2><p class="official">${esc(item.officialText)}</p></section>
+      <section class="card">
+        <h2>Explanation</h2>
+        <p class="meta">${esc(item.category)} · ${esc(item.readingLevel)} · Author hidden</p>
+        <p>${esc(item.body)}</p>
+      </section>
+    </div>
+    <section class="card stack">
+      <fieldset class="checkrow-list" style="border:0;padding:0">
+        <legend><strong>Checklist (all required to approve)</strong></legend>
+        ${REVIEW_CHECKS.map(c => `<label><input type="checkbox" data-check="${esc(c.id)}"> ${esc(c.label)}</label>`).join('')}
+      </fieldset>
+      <label class="field">Note (required to request changes)<textarea id="rnote" rows="3"></textarea></label>
+      <div class="row">
+        <button class="btn" id="approve">Approve</button>
+        <button class="btn ghost" id="changes">Request changes</button>
+      </div>
+      <p class="err" id="err" role="alert"></p>
+    </section>`);
+
+  $('#back').onclick = e => { e.preventDefault(); viewReviewQueue(); };
+  const submit = async verdict => {
+    const checks = {};
+    document.querySelectorAll('[data-check]').forEach(b => checks[b.dataset.check] = b.checked);
+    try {
+      await addReview({ postId, verdict, checks, note: $('#rnote').value });
+      FLASH = verdict === 'approve' ? 'Approved. Thanks for reviewing.' : 'Changes requested and saved.';
+      viewReviewQueue();
+    } catch (e) { err(e.message); }
+  };
+  $('#approve').onclick = () => submit('approve');
+  $('#changes').onclick = () => submit('changes');
+}
+
+// ---------- Add contribution ----------
+
+async function viewContribute(id) {
+  stopPoll();
+  const measure = toMeasure(ok(await sb.from('measures').select('*').eq('id', id).single()));
+  ME = await loadMe();
+  show(`
+    <a href="#" class="back" id="back">← ${esc(measure.shortTitle)}</a>
+    <section class="card narrow stack" style="margin:0;max-width:none">
+      <h1>Add contribution to ${esc(measure.shortTitle)}</h1>
+      <div class="seg" role="group" aria-label="Post type">
+        <button type="button" data-kind="explanation" aria-pressed="true">Explanation</button>
+        <button type="button" data-kind="question" aria-pressed="false">Question</button>
+      </div>
+      <p class="note" id="gate"></p>
+      <label class="field">Category<select id="cat">${opts(CATEGORIES, CATEGORIES[0])}</select></label>
+      <label class="field" id="levelField">Reading level<select id="level">${opts(READING_LEVELS, DEFAULT_LEVEL)}</select></label>
+      <label class="field">Text<textarea id="body" rows="7"></textarea></label>
+      <label class="field" for="src">Supporting source (optional, must start with https)</label>
+      <input id="src" type="url" placeholder="https://">
+      <label class="field" for="srctype">Source type</label>
+      <select id="srctype">${opts(SOURCE_TYPES, SOURCE_TYPES[0])}</select>
+      <label class="checkrow" id="anonRow" hidden><input type="checkbox" id="anon"> Post anonymously (questions only)</label>
+      <div class="row">
+        <button class="btn" id="post">Post</button>
+        <button class="btn ghost" id="cancel">Cancel</button>
+      </div>
+      <p class="err" id="err" role="alert"></p>
+    </section>`);
+
+  let kind = 'explanation';
+  const updateGate = () => {
+    const isExplanation = kind === 'explanation';
+    const locked = isExplanation && ME.reviewsGiven < ME.explanationsWritten;
+    const blocked = isExplanation && (!ME.verified || locked);
+    let msg = 'Your explanation goes to review before it is marked reviewed. You cannot review your own.';
+    if (isExplanation && !ME.verified) msg = 'Explanations are for verified contributors. Ask the facilitator for the code.';
+    if (locked) msg = 'Review one explanation by someone else to unlock your next one.';
+    $('#gate').textContent = msg;
+    $('#levelField').hidden = !isExplanation;
+    $('#anonRow').hidden = isExplanation;
+    $('#post').disabled = blocked;
+  };
+  document.querySelectorAll('[data-kind]').forEach(b => b.onclick = () => {
+    kind = b.dataset.kind;
+    document.querySelectorAll('[data-kind]').forEach(x => x.setAttribute('aria-pressed', x === b));
+    updateGate();
+  });
+  updateGate();
+
+  $('#back').onclick = e => { e.preventDefault(); viewOverview(id); };
+  $('#cancel').onclick = () => viewOverview(id);
+  $('#post').onclick = async () => {
+    const body = $('#body').value;
+    const src = $('#src').value.trim();
+    if (src && !/^https:\/\/\S+$/.test(src)) return err('A source link must start with https://');
+    $('#post').disabled = true;
+    try {
+      await createPost({
+        type: kind, measureId: id, category: $('#cat').value, readingLevel: $('#level').value,
+        body, anonymous: kind === 'question' && $('#anon').checked,
+      });
+      if (src) {
+        await createSource({
+          measureId: id, claim: body.slice(0, 160), url: src, sourceType: $('#srctype').value,
+        });
+      }
+      viewOverview(id);
+    } catch (e) { $('#post').disabled = false; err(e.message); }
+  };
+}
+
+// ---------- Start ----------
+
+async function boot() {
+  if (SUPABASE_URL.includes('YOUR-PROJECT')) {
+    return show(`<section class="card narrow"><h1>Setup needed</h1>
+      <p>Paste your Supabase URL and anon key at the top of this page. See SETUP.md.</p></section>`);
+  }
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) ok(await sb.auth.signInAnonymously());
+  const [cfg] = ok(await sb.from('app_public').select('*'));
+  REVIEWS_REQUIRED = Number(cfg.reviews_required);
+  ME = await loadMe();
+  if (!ME) return viewWelcome();
+  return ME.state ? viewExplore() : viewSetup();
+}
+
+boot().catch(e => show(`<section class="card narrow"><p class="err" role="alert">Could not load the prototype: ${esc(friendlyError(e))}</p></section>`));
+
+</script>
+</body>
+</html>
