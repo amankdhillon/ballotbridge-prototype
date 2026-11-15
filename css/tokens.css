@@ -1,0 +1,32 @@
+/* Design tokens. Change colors, spacing, and type here only. */
+:root {
+  --bg: #f7f2ea;
+  --surface: #ffffff;
+  --surface-2: #fbf8f3;
+  --ink: #2e2219;
+  --ink-2: #5d4d40;
+  --muted: #8a7a6c;
+  --line: #e9dfd2;
+  --brand: #a4502f;
+  --brand-hover: #8c4325;
+  --brand-ink: #ffffff;
+  --brand-soft: #f6e3d8;
+  --ok: #2f6b45;
+  --ok-soft: #e2f1e6;
+  --warn: #8a5a0b;
+  --warn-soft: #f8edd3;
+  --danger: #9b2d2d;
+  --danger-soft: #f7dede;
+  --radius-sm: 8px;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(46, 34, 25, 0.06), 0 6px 20px rgba(46, 34, 25, 0.06);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 36px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --maxw: 1080px;
+}
