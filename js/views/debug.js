@@ -66,7 +66,7 @@ export async function renderDebug(root) {
         <ul class="checks">
           ${rows.map(r => `
             <li class="check ${r.ok ? 'check--ok' : 'check--fail'}">
-              <strong>${r.ok ? '✓' : '✗'} ${esc(r.label)}</strong>
+              <strong><span class="check__status">${r.ok ? 'Passed' : 'Failed'}</span> ${esc(r.label)}</strong>
               <span>${esc(r.detail)}</span>
               ${r.fix ? `<span>${esc(r.fix)}</span>` : ''}
             </li>`).join('')}

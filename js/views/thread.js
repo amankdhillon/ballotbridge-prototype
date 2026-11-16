@@ -38,17 +38,18 @@ function postHtml(post, ctx) {
       <p class="post__body">${esc(post.body)}</p>
       <footer class="post__actions">
         ${isExplanation ? statusBadges(post, ctx) : ''}
-        <button class="link" data-action="toggle-reply" data-id="${esc(post.id)}">Reply</button>
-        ${canReview ? `<button class="btn btn--ghost btn--sm" data-action="review" data-id="${esc(post.id)}">Review</button>` : ''}
+        <button class="link" data-action="toggle-reply" data-id="${esc(post.id)}" aria-label="Reply to ${esc(post.authorName)}">Reply</button>
+        ${canReview ? `<button class="btn btn--ghost btn--sm" data-action="review" data-id="${esc(post.id)}" aria-label="Review this explanation">Review</button>` : ''}
       </footer>
     </article>`;
 }
 
 function statusBadges(post, ctx) {
+  const left = Math.max(ctx.reviewsRequired - post.approvals, 0);
   const status = post.status === 'reviewed'
-    ? badge(`Reviewed · ${post.approvals} approval${post.approvals === 1 ? '' : 's'}`, 'ok')
-    : badge(`Pending review · ${post.approvals}/${ctx.reviewsRequired}`);
-  const changes = post.changesCount ? badge(`Changes requested ×${post.changesCount}`, 'warn') : '';
+    ? badge(`Approved by ${post.approvals} reviewer${post.approvals === 1 ? '' : 's'}`, 'ok')
+    : badge(`Waiting for ${left} more approval${left === 1 ? '' : 's'}`);
+  const changes = post.changesCount ? badge(`Changes requested (${post.changesCount})`, 'warn') : '';
   return status + changes;
 }
 

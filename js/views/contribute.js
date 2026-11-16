@@ -65,7 +65,6 @@ export async function renderContribute(id, root) {
     root.querySelector('#gate').textContent = message;
     root.querySelector('#level-field').hidden = !isExplanation;
     root.querySelector('#anon-row').hidden = isExplanation;
-    root.querySelector('#submit').disabled = isExplanation && (!state.me.verified || locked);
   }
 
   root.querySelectorAll('[data-kind]').forEach(btn => btn.addEventListener('click', () => {
@@ -82,6 +81,8 @@ export async function renderContribute(id, root) {
     const data = new FormData(form);
     const link = String(data.get('url') || '').trim();
     errorEl.textContent = '';
+    const blocked = kind === 'explanation' && (!state.me.verified || state.me.reviewsGiven < state.me.explanationsWritten);
+    if (blocked) { errorEl.textContent = root.querySelector('#gate').textContent; return; }
     if (link && !/^https:\/\/\S+$/.test(link)) {
       errorEl.textContent = 'A source link must start with https://';
       return;
