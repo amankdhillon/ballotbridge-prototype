@@ -11,17 +11,19 @@
   <link rel="stylesheet" href="css/components.css">
 </head>
 <body>
+  <noscript><p class="banner">BallotBridge needs JavaScript to run. Turn it on in your browser settings.</p></noscript>
   <a class="skip-link" href="#app">Skip to content</a>
   <header class="topbar">
     <div class="topbar__inner">
-      <a class="brand" href="#/directory"><span aria-hidden="true">🌉</span> BallotBridge</a>
+      <a class="brand" href="#/directory"><svg class="brand__mark" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 18h20M4 18V9m16 9V9M4 9l8-5 8 5M8 18v-6m8 6v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>BallotBridge</a>
       <span class="pill">Prototype</span>
       <nav class="nav" id="nav" aria-label="Main"></nav>
     </div>
   </header>
   <p class="banner">Sample content and fictional accounts. Not official voter information.</p>
   <main id="app" class="container" tabindex="-1"></main>
-  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <p id="status" class="sr-only" role="status" aria-live="polite"></p>
+  <div id="toasts" class="toasts"></div>
   <div id="modal" class="modal" hidden></div>
   <script type="module" src="js/app.js"></script>
 </body>

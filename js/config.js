@@ -7,6 +7,7 @@ export const SUPABASE_KEY = 'sb_publishable_KtumIMKhsVUYWWLnv34BMg_z9W24QC-';
 // Choices shown in the forms. Keep these in step with the database if you change them.
 export const OPTIONS = {
   icons: ['🦊', '🐼', '🐸', '🐙', '🦉', '🐝', '🌵', '🍀'],
+  iconLabels: { '🦊': 'Fox', '🐼': 'Panda', '🐸': 'Frog', '🐙': 'Octopus', '🦉': 'Owl', '🐝': 'Bee', '🌵': 'Cactus', '🍀': 'Clover' },
   states: ['California'],
   districts: ['Sample District A', 'Sample District B'],
   categories: [

@@ -27,22 +27,57 @@ export const select = ({ id, name = id, options, value }) => `
 
 export const empty = message => `<p class="empty">${esc(message)}</p>`;
 
-export const skeleton = (count = 1) => Array.from({ length: count }, () => '<div class="skeleton"></div>').join('');
+export const skeleton = (count = 1) => Array.from({ length: count }, () => '<div class="skeleton" aria-hidden="true"></div>').join('');
+
+// Dialog behavior: focus moves in, Tab stays inside, Escape closes, and focus returns to the trigger.
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+const modalEl = document.getElementById('modal');
+let returnFocus = null;
+
+// Keep the page behind the dialog out of the tab order and out of screen-reader browsing.
+function setBackgroundInert(on) {
+  ['.topbar', '#app'].forEach(sel => {
+    const el = document.querySelector(sel);
+    if (el) el.inert = on;
+  });
+}
 
 export function openModal(html) {
-  const modal = document.getElementById('modal');
-  modal.innerHTML = `<section class="card" role="dialog" aria-modal="true">${html}</section>`;
-  modal.hidden = false;
-  modal.querySelector('input, textarea, select')?.focus();
+  returnFocus = document.activeElement;
+  modalEl.innerHTML = `<section class="card" role="dialog" aria-modal="true" aria-labelledby="modal-title">${html}</section>`;
+  const heading = modalEl.querySelector('h2');
+  if (heading) heading.id = 'modal-title';
+  modalEl.hidden = false;
+  setBackgroundInert(true);
+  modalEl.querySelector(FOCUSABLE)?.focus();
 }
 
 export function closeModal() {
-  const modal = document.getElementById('modal');
-  modal.hidden = true;
-  modal.innerHTML = '';
+  if (modalEl.hidden) return;
+  modalEl.hidden = true;
+  modalEl.innerHTML = '';
+  setBackgroundInert(false);
+  if (returnFocus && document.contains(returnFocus)) returnFocus.focus();
+  returnFocus = null;
 }
 
 // Close on backdrop click or any element with data-close.
-document.getElementById('modal').addEventListener('click', e => {
+modalEl.addEventListener('click', e => {
   if (e.target.id === 'modal' || e.target.closest('[data-close]')) closeModal();
+});
+
+// Keep Tab inside the dialog.
+modalEl.addEventListener('keydown', e => {
+  if (e.key !== 'Tab') return;
+  const items = [...modalEl.querySelectorAll(FOCUSABLE)];
+  if (!items.length) return;
+  const first = items[0];
+  const last = items[items.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+
+// Escape closes the dialog from anywhere.
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !modalEl.hidden) closeModal();
 });

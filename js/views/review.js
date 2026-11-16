@@ -31,7 +31,7 @@ export async function renderQueue(root) {
           <p class="meta">${esc(q.measureTitle)} · ${esc(q.category)} · ${esc(q.readingLevel)}</p>
           <p class="post__body">${esc(q.body)}</p>
           <div class="row">
-            ${badge(`${q.approvals}/${need} approvals`)}
+            ${badge(`Approvals: ${q.approvals} of ${need}`)}
             ${q.changes ? badge(`Changes requested ×${q.changes}`, 'warn') : ''}
             <button class="btn btn--primary btn--sm" data-review="${esc(q.id)}">Start review</button>
           </div>

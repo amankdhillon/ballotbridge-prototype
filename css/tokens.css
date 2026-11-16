@@ -1,25 +1,52 @@
-/* Design tokens. Change colors, spacing, and type here only. */
+/* Design tokens. Change colors, spacing, and type here only.
+   Palette: deep navy, deep red, and off-white. Ratios checked against WCAG 2.1 AA. */
 :root {
-  --bg: #f7f2ea;
+  /* Core palette */
+  --navy: #1b2a4a;             /* primary text, top bar. 13:1 on off-white */
+  --navy-hover: #142038;
+  --red: #9e1b32;              /* primary actions. 7.9:1 with white text */
+  --red-hover: #7a1426;
+  --off-white: #f8f5ee;        /* page background */
+
+  /* Surfaces and text */
+  --bg: var(--off-white);
   --surface: #ffffff;
-  --surface-2: #fbf8f3;
-  --ink: #2e2219;
-  --ink-2: #5d4d40;
-  --muted: #8a7a6c;
-  --line: #e9dfd2;
-  --brand: #a4502f;
-  --brand-hover: #8c4325;
+  --surface-2: #f2eee4;
+  --ink: var(--navy);
+  --ink-2: #33405c;
+  --muted: #5a6478;            /* 5.4:1 on off-white */
+  --line: #d9d3c4;             /* decorative dividers only */
+  --border-control: #7d8496;   /* input and checkbox borders need 3:1 */
+
+  /* Brand roles */
+  --brand: var(--red);
+  --brand-hover: var(--red-hover);
   --brand-ink: #ffffff;
-  --brand-soft: #f6e3d8;
-  --ok: #2f6b45;
-  --ok-soft: #e2f1e6;
-  --warn: #8a5a0b;
-  --warn-soft: #f8edd3;
-  --danger: #9b2d2d;
-  --danger-soft: #f7dede;
+  --brand-soft: #f4e2e5;
+  --navy-soft: #e3e8f1;
+  --topbar-bg: var(--navy);
+  --topbar-ink: var(--off-white);  /* 13:1 on navy */
+  --focus: var(--red);
+
+  /* Status. Each pairs with its soft background at 7:1 or better */
+  --ok: #1f5c3a;
+  --ok-soft: #e0efe6;
+  --warn: #6b4500;
+  --warn-soft: #f6eccd;
+  --danger: var(--red);
+  --danger-soft: #f6e0e4;
+  --neutral-soft: #e9e5dc;
+
+  /* Effects */
+  --scrim: rgba(27, 42, 74, 0.5);
+  --skeleton-a: #ebe6da;
+  --skeleton-b: #f8f5ee;
+  --shadow-color: 27, 42, 74;
+  --shadow: 0 1px 2px rgba(var(--shadow-color), 0.08), 0 6px 20px rgba(var(--shadow-color), 0.08);
+
+  /* Radius, spacing, type */
   --radius-sm: 8px;
   --radius: 14px;
-  --shadow: 0 1px 2px rgba(46, 34, 25, 0.06), 0 6px 20px rgba(46, 34, 25, 0.06);
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
