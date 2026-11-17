@@ -79,9 +79,9 @@ export async function renderContribute(id, root) {
   const paintQuote = () => {
     const box = root.querySelector('#quote-box');
     box.innerHTML = state.pendingQuote
-      ? `<div class="quote-box"><p class="meta">Linked passage from the official text</p>
+      ? `<div class="quote-box"><p class="meta">Referenced text from the official text</p>
            <blockquote><p>${esc(state.pendingQuote)}</p></blockquote>
-           <button type="button" class="link" id="drop-quote">Remove passage</button></div>`
+           <button type="button" class="link" id="drop-quote">Remove reference</button></div>`
       : '';
     box.querySelector('#drop-quote')?.addEventListener('click', () => { state.pendingQuote = ''; paintQuote(); });
   };

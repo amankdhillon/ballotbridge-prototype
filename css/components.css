@@ -57,13 +57,6 @@ textarea.input { resize: vertical; }
 .chip input:checked + span { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
 .chip input:focus-visible + span { outline: 3px solid var(--brand); outline-offset: 2px; }
 
-/* Icon picker (views/welcome.js) */
-.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: var(--space-2); }
-.icon-btn {
-  font-size: 1.5rem; height: 52px; border-radius: var(--radius-sm); background: var(--surface);
-  border: 1px solid var(--line); cursor: pointer;
-}
-.icon-btn[aria-checked="true"] { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); background: var(--brand-soft); }
 
 /* Measure cards (views/directory.js) */
 .measure-card {
@@ -126,23 +119,29 @@ textarea.input { resize: vertical; }
 .toast__close { background: none; border: 1px solid currentColor; color: inherit; border-radius: var(--radius-sm); min-height: 44px; padding: 0 var(--space-3); font: inherit; cursor: pointer; }
 .check__status { display: inline-block; font-size: 0.8rem; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-sm); margin-right: 6px; background: var(--surface); }
 
-/* Role labels: Contributor (star, green) and Viewer (dashed outline). Shape and text carry the meaning. */
-.role { display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 600; padding: 3px 10px; border-radius: var(--radius-sm); white-space: nowrap; }
-.role--contributor { background: var(--ok-soft); color: var(--ok); border: 1px solid var(--ok); }
-.role--viewer { background: var(--surface); color: var(--ink-2); border: 1px dashed var(--border-control); }
+/* Role marks: a star for contributors, a quiet word for viewers */
+.role { display: inline-flex; align-items: center; }
+.role--contributor { color: var(--ok); }
+.role--viewer { color: var(--muted); font-size: 0.85rem; }
 .star { flex: none; }
 
-/* Signed-in profile in the top bar */
-.me { margin-left: 0; display: flex; align-items: center; gap: var(--space-2); color: var(--topbar-ink); font-size: 0.9rem; flex-wrap: wrap; }
+/* Signed-in profile in the top bar: initial, name, role */
+.me { display: flex; align-items: center; gap: var(--space-2); color: var(--topbar-ink); font-size: 0.95rem; flex-wrap: wrap; }
 .me:empty { display: none; }
-.me__icon { font-size: 1.2rem; }
+.me .avatar { background: var(--off-white); color: var(--navy); border-color: transparent; }
+.me .role--contributor { color: var(--highlight); }
+.me .role--viewer { color: var(--topbar-ink); }
 .me__name { font-weight: 600; }
 
-/* Reactions: at least 44px, pressed state shown by border and weight, not color alone */
-.reactions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.reaction { min-height: 44px; min-width: 44px; padding: 0 var(--space-3); border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--surface); font: inherit; font-size: 0.95rem; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-.reaction:hover { border-color: var(--brand); }
-.reaction[aria-pressed="true"] { border: 2px solid var(--brand); background: var(--brand-soft); font-weight: 600; }
+/* Post metadata: text, not decoration */
+.post__tags { color: var(--muted); font-size: 0.85rem; }
+.post__status { color: var(--ink-2); font-size: 0.85rem; }
+.avatar { font-size: 0.9rem; font-weight: 600; color: var(--ink-2); }
+
+/* The single thumbs-up control: quiet until used */
+.thumb { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 var(--space-3); background: transparent; border: 1px solid var(--line); border-radius: var(--radius-sm); color: var(--ink-2); font: inherit; font-size: 0.95rem; cursor: pointer; }
+.thumb:hover { border-color: var(--brand); color: var(--ink); }
+.thumb[aria-pressed="true"] { color: var(--brand); border-color: var(--brand); background: var(--brand-soft); font-weight: 600; }
 
 /* Linked passages and highlights */
 .quote-box { display: flex; flex-direction: column; gap: var(--space-2); }

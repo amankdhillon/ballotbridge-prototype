@@ -53,12 +53,12 @@ export async function renderMeasure(id, root) {
         body: `
           <div id="official-text" class="official" tabindex="-1"></div>
           <div id="passage-bar" class="passage-bar" aria-live="polite"></div>
-          <details class="passage-paste">
-            <summary>Quote a passage by pasting it</summary>
+          <details class="passage-paste" ${me.verified ? '' : 'hidden'}>
+            <summary>Reference text by pasting it</summary>
             <form id="paste-form" class="row">
               <label class="sr-only" for="paste-input">Exact words from the official text</label>
               <input id="paste-input" class="input" placeholder="Paste exact words from the official text" required>
-              <button class="btn btn--ghost btn--sm" type="submit">Use this passage</button>
+              <button class="btn btn--ghost btn--sm" type="submit">Reference this text</button>
             </form>
           </details>
           ${legislationHtml(measure.legislation)}`,
@@ -103,8 +103,8 @@ export async function renderMeasure(id, root) {
 
   function showPassageBar(quote) {
     $('#passage-bar', root).innerHTML = `
-      <p>Selected passage: “${esc(quote.slice(0, 160))}${quote.length > 160 ? '…' : ''}”</p>
-      <button class="btn btn--primary btn--sm" data-action="use-passage" data-quote="${esc(quote)}">Write about this passage</button>`;
+      <p>Selected text: “${esc(quote.slice(0, 160))}${quote.length > 160 ? '…' : ''}”</p>
+      <button class="btn btn--primary btn--sm" data-action="use-passage" data-quote="${esc(quote)}">Reference text</button>`;
   }
 
   async function refresh() {
@@ -124,6 +124,7 @@ export async function renderMeasure(id, root) {
     const sel = window.getSelection();
     const text = sel ? sel.toString().trim() : '';
     const inside = sel && sel.rangeCount > 0 && official.contains(sel.anchorNode);
+    if (!me.verified) return;
     if (!inside || text.length < 3 || text.length > 600) return;
     showPassageBar(text);
   }

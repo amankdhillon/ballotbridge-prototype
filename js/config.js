@@ -6,8 +6,6 @@ export const SUPABASE_KEY = 'sb_publishable_KtumIMKhsVUYWWLnv34BMg_z9W24QC-';
 
 // Choices shown in the forms. Keep these in step with the database if you change them.
 export const OPTIONS = {
-  icons: ['🦊', '🐼', '🐸', '🐙', '🦉', '🐝', '🌵', '🍀'],
-  iconLabels: { '🦊': 'Fox', '🐼': 'Panda', '🐸': 'Frog', '🐙': 'Octopus', '🦉': 'Owl', '🐝': 'Bee', '🌵': 'Cactus', '🍀': 'Clover' },
   states: ['California'],
   districts: ['Sample District A', 'Sample District B'],
   categories: [
@@ -25,11 +23,5 @@ export const OPTIONS = {
   ],
 };
 
-// Emoji reactions. The labels are read aloud to screen-reader users.
-// Must match the list in migration-2.sql.
-export const REACTIONS = [
-  { emoji: '👍', label: 'Thumbs up' },
-  { emoji: '💡', label: 'Helpful idea' },
-  { emoji: '❓', label: 'Raises a question' },
-  { emoji: '👏', label: 'Applause' },
-];
+// The single reaction. `key` is the value stored in the database. The page shows a thumbs-up icon, not the character.
+export const REACTION = { key: '👍', label: 'Thumbs up' };
