@@ -168,3 +168,6 @@ textarea.input { resize: vertical; }
   border-radius: var(--radius-sm); color: var(--ink); text-decoration: none; font-weight: 500;
 }
 .me__menu a:hover, .me__menu a:focus-visible { background: var(--navy-soft); }
+
+/* Placeholder menu items (not links yet) */
+.me__note { padding: var(--space-2) var(--space-3); color: var(--muted); font-size: 0.9rem; }

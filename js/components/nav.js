@@ -1,49 +1,49 @@
-// Top navigation and the signed-in profile in the corner.
-// Contributors get a menu button; viewers get a plain label. The review queue appears only for verified participants.
+// The top bar holds only the account menu. Everyone who is signed in opens it from their name.
+// Contributors also see their contributions and the review queue.
 import { state } from '../state/store.js';
-import { currentPath } from '../lib/nav.js';
 import { esc } from '../lib/dom.js';
 import { roleBadge, initialOf } from './ui.js';
 
 let menuOpen = false;
 
+// Menu items. Labels marked "note" are placeholders and aren't links yet.
+function menuItems(me) {
+  const items = [
+    { href: '#/directory', label: 'Home' },
+    { note: true, label: 'Question history (coming soon)' },
+  ];
+  if (me.verified) {
+    items.push({ note: true, label: 'My contributions (coming soon)' });
+    items.push({ href: '#/review', label: 'Review queue' });
+  }
+  return items;
+}
+
 export function renderNav() {
-  const nav = document.getElementById('nav');
+  // The header nav is not used: links live in the account menu.
+  document.getElementById('nav').hidden = true;
   const corner = document.getElementById('me');
-  const path = currentPath();
-  const link = (href, label, active) =>
-    `<a href="#${href}" ${active ? 'aria-current="page"' : ''}>${label}</a>`;
-
-  nav.innerHTML = state.me?.state
-    ? link('/directory', 'Directory', path.startsWith('/directory') || path.startsWith('/measure'))
-      + (state.me.verified ? link('/review', 'Review queue', path.startsWith('/review')) : '')
-    : '';
-
   const me = state.me;
+
   if (!me?.state) {
     corner.innerHTML = '';
     return;
   }
 
-  const identity = `
-    <span class="avatar" aria-hidden="true">${esc(initialOf(me.nickname))}</span>
-    <span class="me__name">${esc(me.nickname)}</span>
-    ${roleBadge(me.verified)}`;
-
-  if (!me.verified) {
-    corner.innerHTML = `<span class="sr-only">Signed in as</span><span class="me__static">${identity}</span>`;
-    return;
-  }
+  const items = menuItems(me).map(item => item.note
+    ? `<li class="me__note">${esc(item.label)}</li>`
+    : `<li><a href="${esc(item.href)}">${esc(item.label)}</a></li>`).join('');
 
   corner.innerHTML = `
     <div class="me__wrap">
       <button type="button" class="me__button" id="me-button" aria-expanded="${menuOpen}" aria-controls="me-menu">
-        <span class="sr-only">Signed in as</span>${identity}<span class="sr-only">, open account menu</span>
+        <span class="sr-only">Account, signed in as</span>
+        <span class="avatar" aria-hidden="true">${esc(initialOf(me.nickname))}</span>
+        <span class="me__name">${esc(me.nickname)}</span>
+        ${roleBadge(me.verified)}
+        <span class="sr-only">, open menu</span>
       </button>
-      <ul class="me__menu" id="me-menu" ${menuOpen ? '' : 'hidden'}>
-        <li class="me__label">My contributions</li>
-        <li><a href="#/review">Review queue</a></li>
-      </ul>
+      <ul class="me__menu" id="me-menu" ${menuOpen ? '' : 'hidden'}>${items}</ul>
     </div>`;
 }
 
