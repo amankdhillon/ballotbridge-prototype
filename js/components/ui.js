@@ -81,3 +81,12 @@ modalEl.addEventListener('keydown', e => {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !modalEl.hidden) closeModal();
 });
+
+// Role labels. The star and the word "Contributor" mark verified people; "Viewer" marks everyone else.
+// Shape and text carry the meaning, so color isn't the only cue.
+export const starIcon = () =>
+  `<svg class="star" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="currentColor"/></svg>`;
+
+export const roleBadge = verified => verified
+  ? `<span class="role role--contributor">${starIcon()} Contributor</span>`
+  : `<span class="role role--viewer">Viewer</span>`;

@@ -1,4 +1,4 @@
-// Posts and their threads. Reads go through views that hide authors on anonymous posts.
+// Posts, threads, quotes, and reactions. Reads go through views that hide authors on anonymous posts.
 import { sb, unwrap } from '../lib/supabase.js';
 
 const toPost = r => ({
@@ -8,6 +8,7 @@ const toPost = r => ({
   category: r.category,
   readingLevel: r.reading_level,
   body: r.body,
+  quote: r.quote ?? '',
   status: r.status,
   createdAt: r.created_at,
   authorName: r.author_name,
@@ -17,6 +18,8 @@ const toPost = r => ({
   approvals: Number(r.approvals),
   changesCount: Number(r.changes_count),
   reviewedByMe: r.reviewed_by_me,
+  reactions: r.reactions ?? {},
+  myReactions: r.my_reactions ?? [],
   replies: [],
 });
 
@@ -42,7 +45,7 @@ export async function fetchThread(measureId) {
   };
 }
 
-export async function createPost({ userId, type, measureId, parentId = null, category = '', readingLevel = '', body, anonymous = false }) {
+export async function createPost({ userId, type, measureId, parentId = null, category = '', readingLevel = '', body, anonymous = false, quote = '' }) {
   const text = String(body ?? '').trim();
   if (!text) throw new Error('Write something first.');
   unwrap(await sb().from('posts').insert({
@@ -54,5 +57,11 @@ export async function createPost({ userId, type, measureId, parentId = null, cat
     reading_level: type === 'explanation' ? readingLevel : '',
     body: text,
     anonymous,
+    quote: String(quote ?? '').slice(0, 600),
   }));
+}
+
+// Adds the reaction if it's missing, removes it if it's there.
+export async function toggleReaction(postId, emoji) {
+  unwrap(await sb().rpc('toggle_reaction', { p: postId, e: emoji }));
 }

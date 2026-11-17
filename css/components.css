@@ -125,3 +125,40 @@ textarea.input { resize: vertical; }
 .toast { display: flex; align-items: center; gap: var(--space-3); justify-content: space-between; }
 .toast__close { background: none; border: 1px solid currentColor; color: inherit; border-radius: var(--radius-sm); min-height: 44px; padding: 0 var(--space-3); font: inherit; cursor: pointer; }
 .check__status { display: inline-block; font-size: 0.8rem; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-sm); margin-right: 6px; background: var(--surface); }
+
+/* Role labels: Contributor (star, green) and Viewer (dashed outline). Shape and text carry the meaning. */
+.role { display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 600; padding: 3px 10px; border-radius: var(--radius-sm); white-space: nowrap; }
+.role--contributor { background: var(--ok-soft); color: var(--ok); border: 1px solid var(--ok); }
+.role--viewer { background: var(--surface); color: var(--ink-2); border: 1px dashed var(--border-control); }
+.star { flex: none; }
+
+/* Signed-in profile in the top bar */
+.me { margin-left: 0; display: flex; align-items: center; gap: var(--space-2); color: var(--topbar-ink); font-size: 0.9rem; flex-wrap: wrap; }
+.me:empty { display: none; }
+.me__icon { font-size: 1.2rem; }
+.me__name { font-weight: 600; }
+
+/* Reactions: at least 44px, pressed state shown by border and weight, not color alone */
+.reactions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.reaction { min-height: 44px; min-width: 44px; padding: 0 var(--space-3); border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--surface); font: inherit; font-size: 0.95rem; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.reaction:hover { border-color: var(--brand); }
+.reaction[aria-pressed="true"] { border: 2px solid var(--brand); background: var(--brand-soft); font-weight: 600; }
+
+/* Linked passages and highlights */
+.quote-box { display: flex; flex-direction: column; gap: var(--space-2); }
+.quote-box blockquote { margin: 0; padding: var(--space-2) var(--space-3); border-left: 3px solid var(--navy); background: var(--navy-soft); border-radius: var(--radius-sm); }
+.quote-box blockquote p { margin: 0; }
+mark { background: var(--highlight); color: var(--navy); padding: 0 2px; border-radius: 2px; }
+.passage-bar { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-3); }
+.passage-bar:empty { display: none; }
+.passage-bar p { margin: 0; }
+.passage-paste { margin-top: var(--space-3); }
+.passage-paste summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--brand); font-weight: 600; }
+.passage-paste form { margin-top: var(--space-2); }
+.passage-paste .input { flex: 1 1 220px; }
+#official-text:focus-visible { outline-offset: 4px; }
+
+/* Legislation links under the official text */
+.sub { font-size: 1rem; margin: var(--space-4) 0 var(--space-2); }
+.legislation { margin: 0; padding-left: var(--space-4); }
+.legislation li { margin: var(--space-1) 0; }

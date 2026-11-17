@@ -10,6 +10,9 @@ export const toMeasure = r => ({
   officialText: r.official_text,
   aiSummary: r.ai_summary,
   funders: r.funders ?? [],
+  // Only https links are shown. The page checks this again before rendering them.
+  legislation: (Array.isArray(r.legislation) ? r.legislation : [])
+    .filter(l => l && /^https:\/\/\S+$/.test(l.url || '')),
 });
 
 export async function loadSettings() {
