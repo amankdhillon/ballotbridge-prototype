@@ -3,5 +3,4 @@ export const state = {
   me: null,                          // signed-in profile with stats, or null before joining
   settings: { reviewsRequired: 1 }, // read from the database at startup
   bootError: null,                   // set if the connection failed at startup
-  pendingQuote: '',                  // passage selected in the official text, waiting for a contribution
 };

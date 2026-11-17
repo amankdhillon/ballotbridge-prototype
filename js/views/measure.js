@@ -1,4 +1,4 @@
-// One measure: official text with linkable passages, legislation links, explanations, questions, and sources.
+// One measure: ballot language, legislation links, explanations, questions, and sources.
 // Uses event delegation so the page adds one listener per action type, not one per button.
 import { state } from '../state/store.js';
 import { OPTIONS } from '../config.js';
@@ -11,15 +11,6 @@ import { watchMeasure } from '../services/realtime.js';
 import { card, button, field, select, skeleton, openModal, closeModal } from '../components/ui.js';
 import { toast, announce } from '../components/toast.js';
 import { threadHtml, sourcesHtml, draftFor, ui } from './thread.js';
-
-const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-// Wraps the first match of a passage in <mark>. Escapes everything, so the text can't inject markup.
-function markPassage(raw, quote) {
-  const i = quote ? raw.indexOf(quote) : -1;
-  if (i < 0) return esc(raw);
-  return esc(raw.slice(0, i)) + `<mark>${esc(quote)}</mark>` + esc(raw.slice(i + quote.length));
-}
 
 function legislationHtml(links) {
   if (!links.length) return '<p class="note">Links to the legislation will appear here.</p>';
@@ -49,19 +40,9 @@ export async function renderMeasure(id, root) {
     </header>
     <div class="grid-2">
       ${card({
-        title: 'Official ballot language',
-        body: `
-          <div id="official-text" class="official" tabindex="-1"></div>
-          <div id="passage-bar" class="passage-bar" aria-live="polite"></div>
-          <details class="passage-paste" ${me.verified ? '' : 'hidden'}>
-            <summary>Reference text by pasting it</summary>
-            <form id="paste-form" class="row">
-              <label class="sr-only" for="paste-input">Exact words from the official text</label>
-              <input id="paste-input" class="input" placeholder="Paste exact words from the official text" required>
-              <button class="btn btn--ghost btn--sm" type="submit">Reference this text</button>
-            </form>
-          </details>
-          ${legislationHtml(measure.legislation)}`,
+        title: 'Ballot language',
+        body: `<div class="official">${esc(measure.officialText)}</div>
+               ${legislationHtml(measure.legislation)}`,
       })}
       ${card({
         title: 'AI summary',
@@ -82,10 +63,6 @@ export async function renderMeasure(id, root) {
       })}
     </div>`;
 
-  function paintOfficial() {
-    $('#official-text', root).innerHTML = markPassage(measure.officialText, ui.highlight);
-  }
-
   function paint() {
     // Don't repaint while someone is typing a reply; repaint once they leave the box.
     const active = document.activeElement;
@@ -101,33 +78,13 @@ export async function renderMeasure(id, root) {
     $('#sources', root).innerHTML = sourcesHtml(sources);
   }
 
-  function showPassageBar(quote) {
-    $('#passage-bar', root).innerHTML = `
-      <p>Selected text: “${esc(quote.slice(0, 160))}${quote.length > 160 ? '…' : ''}”</p>
-      <button class="btn btn--primary btn--sm" data-action="use-passage" data-quote="${esc(quote)}">Reference text</button>`;
-  }
-
   async function refresh() {
     view.thread = await fetchThread(id);
     view.json = JSON.stringify(view.thread);
     paint();
   }
 
-  paintOfficial();
   paint();
-
-  // Selecting text in the official text offers to link that passage.
-  root.addEventListener('mouseup', onPick);
-  root.addEventListener('keyup', onPick);
-  function onPick() {
-    const official = $('#official-text', root);
-    const sel = window.getSelection();
-    const text = sel ? sel.toString().trim() : '';
-    const inside = sel && sel.rangeCount > 0 && official.contains(sel.anchorNode);
-    if (!me.verified) return;
-    if (!inside || text.length < 3 || text.length > 600) return;
-    showPassageBar(text);
-  }
 
   root.addEventListener('click', async e => {
     const btn = e.target.closest('[data-action]');
@@ -153,19 +110,6 @@ export async function renderMeasure(id, root) {
       }
       return;
     }
-    if (action === 'show-passage') {
-      ui.highlight = btn.dataset.quote;
-      paintOfficial();
-      const official = $('#official-text', root);
-      official.focus();
-      official.scrollIntoView({ block: 'center', behavior: reduceMotion() ? 'auto' : 'smooth' });
-      announce('Passage highlighted in the official text.');
-      return;
-    }
-    if (action === 'use-passage') {
-      state.pendingQuote = btn.dataset.quote;
-      return go(`/measure/${id}/contribute`);
-    }
     if (action === 'review') return go(`/review/${target}`);
     if (action === 'add-source') return openSourceModal();
   });
@@ -183,36 +127,22 @@ export async function renderMeasure(id, root) {
   root.addEventListener('submit', async e => {
     e.preventDefault();
     const form = e.target;
-
-    if (form.id === 'paste-form') {
-      const quote = form.querySelector('#paste-input').value.trim();
-      if (!quote || !measure.officialText.includes(quote)) {
-        return toast('That passage is not in the official text. Check the spelling, or copy it exactly.', 'error');
-      }
-      ui.highlight = quote;
-      paintOfficial();
-      showPassageBar(quote);
-      announce('Passage highlighted in the official text.');
-      return;
-    }
-
-    if (form.id === 'question-form') {
-      const data = new FormData(form);
-      try {
-        await createPost({
-          userId: me.id,
-          type: 'question',
-          measureId: id,
-          category: data.get('category'),
-          body: data.get('body'),
-          anonymous: data.get('anon') === 'on',
-        });
-        form.reset();
-        toast('Question posted');
-        await refresh();
-      } catch (err) {
-        toast(err.message, 'error');
-      }
+    if (form.id !== 'question-form') return;
+    const data = new FormData(form);
+    try {
+      await createPost({
+        userId: me.id,
+        type: 'question',
+        measureId: id,
+        category: data.get('category'),
+        body: data.get('body'),
+        anonymous: data.get('anon') === 'on',
+      });
+      form.reset();
+      toast('Question posted');
+      await refresh();
+    } catch (err) {
+      toast(err.message, 'error');
     }
   });
 
