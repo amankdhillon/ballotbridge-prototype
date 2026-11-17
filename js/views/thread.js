@@ -1,5 +1,5 @@
 // Renders threads. Top-level posts show first; the discussion under them opens on request.
-// Holds the UI state that must survive repaints: open reply boxes, drafts, expanded threads, highlights.
+// Holds the UI state that must survive repaints: open reply boxes, drafts, expanded threads.
 import { esc } from '../lib/dom.js';
 import { badge, tag, empty, roleBadge, thumbIcon, initialOf } from '../components/ui.js';
 import { REACTION } from '../config.js';
@@ -8,7 +8,6 @@ export const ui = {
   openReplies: new Set(),
   drafts: new Map(),
   expanded: new Set(),
-  highlight: '',
 };
 
 export function draftFor(id) {
@@ -52,7 +51,6 @@ function postHtml(post, ctx, { isRoot, open }) {
         ${tags ? `<span class="post__tags">${tags}</span>` : ''}
       </header>
       <p class="post__body">${esc(post.body)}</p>
-      ${post.quote ? quoteHtml(post.quote) : ''}
       <footer class="post__actions">
         ${isExplanation ? `<span class="post__status">${esc(statusText(post, ctx))}</span>` : ''}
         ${thumbButton(post)}
@@ -61,14 +59,6 @@ function postHtml(post, ctx, { isRoot, open }) {
         ${showToggle}
       </footer>
     </article>`;
-}
-
-function quoteHtml(quote) {
-  return `
-    <div class="quote-box">
-      <blockquote><p>${esc(quote)}</p></blockquote>
-      <button type="button" class="link" data-action="show-passage" data-quote="${esc(quote)}">Show in official text</button>
-    </div>`;
 }
 
 // The single reaction: a thumbs-up toggle with a count.

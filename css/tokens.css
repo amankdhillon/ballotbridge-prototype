@@ -58,5 +58,8 @@
   --maxw: 1080px;
 }
 
-/* Passage highlight. Navy text on this yellow is about 10:1. */
+/* Accent for the contributor star on navy. Contrast with navy is about 10:1. */
 :root { --highlight: #f3d77a; }
+
+/* Hover tint for the account button in the top bar */
+:root { --topbar-hover: #2c3d62; }

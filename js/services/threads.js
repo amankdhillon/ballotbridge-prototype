@@ -1,4 +1,4 @@
-// Posts, threads, quotes, and reactions. Reads go through views that hide authors on anonymous posts.
+// Posts, threads, and reactions. Reads go through views that hide authors on anonymous posts.
 import { sb, unwrap } from '../lib/supabase.js';
 
 const toPost = r => ({
@@ -8,7 +8,6 @@ const toPost = r => ({
   category: r.category,
   readingLevel: r.reading_level,
   body: r.body,
-  quote: r.quote ?? '',
   status: r.status,
   createdAt: r.created_at,
   authorName: r.author_name,
@@ -45,7 +44,7 @@ export async function fetchThread(measureId) {
   };
 }
 
-export async function createPost({ userId, type, measureId, parentId = null, category = '', readingLevel = '', body, anonymous = false, quote = '' }) {
+export async function createPost({ userId, type, measureId, parentId = null, category = '', readingLevel = '', body, anonymous = false }) {
   const text = String(body ?? '').trim();
   if (!text) throw new Error('Write something first.');
   unwrap(await sb().from('posts').insert({
@@ -57,7 +56,6 @@ export async function createPost({ userId, type, measureId, parentId = null, cat
     reading_level: type === 'explanation' ? readingLevel : '',
     body: text,
     anonymous,
-    quote: String(quote ?? '').slice(0, 600),
   }));
 }
 
