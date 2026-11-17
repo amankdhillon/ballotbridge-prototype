@@ -1,8 +1,8 @@
 // Renders threads. Top-level posts show first; the discussion under them opens on request.
 // Holds the UI state that must survive repaints: open reply boxes, drafts, expanded threads, highlights.
 import { esc } from '../lib/dom.js';
-import { badge, tag, empty, roleBadge } from '../components/ui.js';
-import { REACTIONS } from '../config.js';
+import { badge, tag, empty, roleBadge, thumbIcon, initialOf } from '../components/ui.js';
+import { REACTION } from '../config.js';
 
 export const ui = {
   openReplies: new Set(),
@@ -41,21 +41,21 @@ function postHtml(post, ctx, { isRoot, open }) {
     ? `<button type="button" class="btn btn--ghost btn--sm" data-action="toggle-thread" data-id="${esc(post.id)}" aria-expanded="${open}">${open ? 'Hide discussion' : `Show discussion (${replies})`}</button>`
     : '';
   const anonymous = post.authorName === 'Anonymous';
+  const tags = [post.category, post.readingLevel].filter(Boolean).map(esc).join(' · ');
 
   return `
     <article class="post">
       <header class="post__meta">
-        <span class="avatar" aria-hidden="true">${esc(post.authorIcon) || '👤'}</span>
+        <span class="avatar" aria-hidden="true">${esc(initialOf(post.authorName))}</span>
         <span class="post__author">${esc(post.authorName)}</span>
         ${anonymous ? '' : roleBadge(post.authorVerified)}
-        ${post.category ? tag(post.category) : ''}
-        ${post.readingLevel ? tag(post.readingLevel) : ''}
+        ${tags ? `<span class="post__tags">${tags}</span>` : ''}
       </header>
       <p class="post__body">${esc(post.body)}</p>
       ${post.quote ? quoteHtml(post.quote) : ''}
-      ${reactionBar(post)}
       <footer class="post__actions">
-        ${isExplanation ? statusBadges(post, ctx) : ''}
+        ${isExplanation ? `<span class="post__status">${esc(statusText(post, ctx))}</span>` : ''}
+        ${thumbButton(post)}
         <button class="link" data-action="toggle-reply" data-id="${esc(post.id)}" aria-label="Reply to ${esc(post.authorName)}">Reply</button>
         ${canReview ? `<button class="btn btn--ghost btn--sm" data-action="review" data-id="${esc(post.id)}" aria-label="Review this explanation">Review</button>` : ''}
         ${showToggle}
@@ -71,30 +71,25 @@ function quoteHtml(quote) {
     </div>`;
 }
 
-function reactionBar(post) {
-  const mine = new Set(post.myReactions);
+// The single reaction: a thumbs-up toggle with a count.
+function thumbButton(post) {
+  const count = Number(post.reactions[REACTION.key] || 0);
+  const pressed = post.myReactions.includes(REACTION.key);
+  const spoken = `${REACTION.label}, ${count} ${count === 1 ? 'person' : 'people'}${pressed ? ', you chose it' : ''}`;
   return `
-    <div class="reactions" role="group" aria-label="React to this post">
-      ${REACTIONS.map(r => {
-        const count = Number(post.reactions[r.emoji] || 0);
-        const pressed = mine.has(r.emoji);
-        const spoken = `${r.label}, ${count} ${count === 1 ? 'reaction' : 'reactions'}${pressed ? ', you reacted' : ''}`;
-        return `
-          <button type="button" class="reaction" aria-pressed="${pressed}"
-            data-action="react" data-id="${esc(post.id)}" data-emoji="${esc(r.emoji)}" aria-label="${esc(spoken)}">
-            <span aria-hidden="true">${r.emoji}</span><span aria-hidden="true">${count}</span>
-          </button>`;
-      }).join('')}
-    </div>`;
+    <button type="button" class="thumb" aria-pressed="${pressed}" data-action="react"
+      data-id="${esc(post.id)}" data-emoji="${esc(REACTION.key)}" aria-label="${esc(spoken)}">
+      ${thumbIcon()}<span aria-hidden="true">${count}</span>
+    </button>`;
 }
 
-function statusBadges(post, ctx) {
+// Plain text, not colored pills.
+function statusText(post, ctx) {
   const left = Math.max(ctx.reviewsRequired - post.approvals, 0);
-  const status = post.status === 'reviewed'
-    ? badge(`Approved by ${post.approvals} reviewer${post.approvals === 1 ? '' : 's'}`, 'ok')
-    : badge(`Waiting for ${left} more approval${left === 1 ? '' : 's'}`);
-  const changes = post.changesCount ? badge(`Changes requested (${post.changesCount})`, 'warn') : '';
-  return status + changes;
+  const text = post.status === 'reviewed'
+    ? `Approved by ${post.approvals} reviewer${post.approvals === 1 ? '' : 's'}`
+    : `Waiting for ${left} more approval${left === 1 ? '' : 's'}`;
+  return post.changesCount ? `${text} · Changes requested (${post.changesCount})` : text;
 }
 
 function replyBoxHtml(post) {
