@@ -30,6 +30,7 @@ export async function renderContribute(id, root) {
           <button type="button" data-kind="question" aria-pressed="false">Question</button>
         </div>
         <p id="gate" class="note"></p>
+        <div id="quote-box"></div>
         ${field({ id: 'c-cat', label: 'Topic', control: select({ id: 'c-cat', name: 'category', options: OPTIONS.categories }) })}
         <div id="level-field">
           ${field({ id: 'c-level', label: 'Reading level', control: select({ id: 'c-level', name: 'readingLevel', options: OPTIONS.readingLevels, value: OPTIONS.defaultLevel }) })}
@@ -74,6 +75,18 @@ export async function renderContribute(id, root) {
   }));
   updateGate();
 
+  // Shows the passage linked from the official text, with a way to remove it.
+  const paintQuote = () => {
+    const box = root.querySelector('#quote-box');
+    box.innerHTML = state.pendingQuote
+      ? `<div class="quote-box"><p class="meta">Linked passage from the official text</p>
+           <blockquote><p>${esc(state.pendingQuote)}</p></blockquote>
+           <button type="button" class="link" id="drop-quote">Remove passage</button></div>`
+      : '';
+    box.querySelector('#drop-quote')?.addEventListener('click', () => { state.pendingQuote = ''; paintQuote(); });
+  };
+  paintQuote();
+
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const errorEl = root.querySelector('#form-error');
@@ -97,6 +110,7 @@ export async function renderContribute(id, root) {
         readingLevel: data.get('readingLevel'),
         body: data.get('body'),
         anonymous: data.get('anon') === 'on',
+        quote: state.pendingQuote,
       });
       if (link) {
         await createSource({
@@ -107,6 +121,7 @@ export async function renderContribute(id, root) {
           sourceType: data.get('sourceType'),
         });
       }
+      state.pendingQuote = '';
       toast(kind === 'explanation' ? 'Explanation submitted for review' : 'Question posted');
       go(`/measure/${id}`);
     } catch (err) {

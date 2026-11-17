@@ -24,3 +24,12 @@ export const OPTIONS = {
     { id: 'plain', label: 'Clear for a new voter' },
   ],
 };
+
+// Emoji reactions. The labels are read aloud to screen-reader users.
+// Must match the list in migration-2.sql.
+export const REACTIONS = [
+  { emoji: '👍', label: 'Thumbs up' },
+  { emoji: '💡', label: 'Helpful idea' },
+  { emoji: '❓', label: 'Raises a question' },
+  { emoji: '👏', label: 'Applause' },
+];

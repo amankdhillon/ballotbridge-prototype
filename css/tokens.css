@@ -57,3 +57,6 @@
   --font-display: "Iowan Old Style", Georgia, "Times New Roman", serif;
   --maxw: 1080px;
 }
+
+/* Passage highlight. Navy text on this yellow is about 10:1. */
+:root { --highlight: #f3d77a; }
